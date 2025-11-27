@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { agregarPosts, obtenerPosts } = require("./db/consultas");
+const { agregarPosts, obtenerPosts, modificarPosts, eliminarPosts } = require("./db/consultas");
 const app = express();
 
 app.use(cors());
@@ -14,9 +14,9 @@ app.get("/posts", async (req,res) => {
         res.json(posts);
     } catch (error) {
         console.log(error);
-        res.status(500).send("Error al obtener posts");
+        res.status(error.code || 500).send(error.message || "Error interno");
     }
-})
+});
 
 app.post("/posts", async(req, res) => {
     try {
@@ -25,7 +25,29 @@ app.post("/posts", async(req, res) => {
         res.send ("Post agregado");
     } catch (error) {
         console.log(error);
-        res.status(500).send("Error al agregar post");
+        res.status(error.code || 500).send(error.message || "Error interno");
     }
 
-})
+});
+
+app.put("/posts/like/:id", async(req, res) => {
+    try {
+        const {id} = req.params;
+        await modificarPosts(id);
+        res.send("Post modificado con éxito"); 
+    } catch (error) {
+        console.log(error);
+        res.status(error.code || 500).send(error.message || "Error interno");
+    }
+});
+
+app.delete("/posts/:id", async (req, res) => {
+    try {
+       const {id} = req.params;
+       await eliminarPosts(id);
+       res.send("Post eliminado con éxito");
+    } catch (error) {
+        console.log(error);
+        res.status(error.code || 500).send(error.message || "Error interno");
+    }
+});
